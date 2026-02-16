@@ -9,6 +9,8 @@ class Validation extends StatefulWidget {
 class EmailValidation extends State<Validation> {
   TextEditingController inputcontroller = TextEditingController();
 
+  EmailValidation(text);
+
   void validate(String email, dynamic emailValidator ) {
     bool isvalid = emailValidator.validate(email);
     if (isvalid) {
