@@ -67,6 +67,7 @@ void _setStaticStyleAttributes(DomHTMLElement domElement) {
     ..position = 'absolute'
     ..top = '0'
     ..left = '0'
+    ..margin = '0'
     ..padding = '0'
     ..opacity = '1'
     ..color = 'transparent'
@@ -107,6 +108,7 @@ void _styleAutofillElements(
   final DomCSSStyleDeclaration elementStyle = domElement.style;
   elementStyle
     ..whiteSpace = 'pre-wrap'
+    ..margin = '0'
     ..padding = '0'
     ..opacity = '1'
     ..color = 'transparent'
@@ -170,7 +172,7 @@ void _insertEditingElementInView(DomElement element, int viewId) {
     view != null,
     'Could not find View with id $viewId. This should never happen, please file a bug!',
   );
-  final host = view!.dom.textEditingHost;
+  final DomElement host = view!.dom.textEditingHost;
   // Do not cause DOM disturbance unless necessary. Doing superfluous DOM operations may seem
   // harmless, but it actually causes focus changes that could break things.
   if (!host.contains(element)) {
@@ -238,10 +240,10 @@ class EngineAutofillForm {
     // If there is only one text field in the autofill model, `fields` will be
     // null. `focusedElementAutofill` contains the information about the one
     // text field.
-    final Map<String, DomHTMLElement> elements = <String, DomHTMLElement>{};
-    final Map<String, AutofillInfo> items = <String, AutofillInfo>{};
+    final elements = <String, DomHTMLElement>{};
+    final items = <String, AutofillInfo>{};
     final DomHTMLFormElement formElement = createDomHTMLFormElement();
-    final bool isSafariDesktopStrategy = textEditing.strategy is SafariDesktopTextEditingStrategy;
+    final isSafariDesktopStrategy = textEditing.strategy is SafariDesktopTextEditingStrategy;
     DomHTMLElement? insertionReferenceNode;
 
     // Validation is in the framework side.
@@ -257,16 +259,16 @@ class EngineAutofillForm {
 
     // We keep the ids in a list then sort them later, in case the text fields'
     // locations are re-ordered on the framework side.
-    final List<String> ids = List<String>.empty(growable: true);
+    final ids = List<String>.empty(growable: true);
 
     // The focused text editing element will not be created here.
-    final AutofillInfo focusedElement = AutofillInfo.fromFrameworkMessage(focusedElementAutofill);
+    final focusedElement = AutofillInfo.fromFrameworkMessage(focusedElementAutofill);
 
     if (fields != null) {
-      bool fieldIsFocusedElement = false;
+      var fieldIsFocusedElement = false;
       for (final Map<String, dynamic> field in fields.cast<Map<String, dynamic>>()) {
         final Map<String, dynamic> autofillInfo = field.readJson('autofill');
-        final AutofillInfo autofill = AutofillInfo.fromFrameworkMessage(
+        final autofill = AutofillInfo.fromFrameworkMessage(
           autofillInfo,
           textCapitalization: TextCapitalizationConfig.fromInputConfiguration(
             field.readString('textCapitalization'),
@@ -318,17 +320,17 @@ class EngineAutofillForm {
     }
 
     ids.sort();
-    final StringBuffer idBuffer = StringBuffer();
+    final idBuffer = StringBuffer();
 
     // Add a separator between element identifiers.
-    for (final String id in ids) {
+    for (final id in ids) {
       if (idBuffer.length > 0) {
         idBuffer.write('*');
       }
       idBuffer.write(id);
     }
 
-    final String formIdentifier = idBuffer.toString();
+    final formIdentifier = idBuffer.toString();
 
     // If a form with the same Autofill elements is already on the dom, remove
     // it from DOM.
@@ -393,7 +395,7 @@ class EngineAutofillForm {
   /// listeners are removed during [TextEditingStrategy.disable] method call.
   List<DomSubscription> addInputEventListeners() {
     final Iterable<String> keys = elements!.keys;
-    final List<DomSubscription> subscriptions = <DomSubscription>[];
+    final subscriptions = <DomSubscription>[];
 
     void addSubscriptionForKey(String key) {
       final DomElement element = elements![key]!;
@@ -418,7 +420,7 @@ class EngineAutofillForm {
   }
 
   void handleChange(DomElement domElement, AutofillInfo autofillInfo) {
-    final EditingState newEditingState = EditingState.fromDomElement(domElement as DomHTMLElement);
+    final newEditingState = EditingState.fromDomElement(domElement as DomHTMLElement);
 
     _sendAutofillEditingState(autofillInfo.uniqueIdentifier, newEditingState);
   }
@@ -461,9 +463,7 @@ class AutofillInfo {
     final String? firstHint = (hintsList == null || hintsList.isEmpty)
         ? null
         : hintsList.first as String;
-    final EditingState editingState = EditingState.fromFrameworkMessage(
-      autofill.readJson('editingValue'),
-    );
+    final editingState = EditingState.fromFrameworkMessage(autofill.readJson('editingValue'));
     return AutofillInfo(
       uniqueIdentifier: uniqueIdentifier,
       autofillHint: (firstHint != null)
@@ -517,7 +517,7 @@ class AutofillInfo {
     final String? autofillHint = this.autofillHint;
     final String? placeholder = this.placeholder;
     if (domElement.isA<DomHTMLInputElement>()) {
-      final DomHTMLInputElement element = domElement as DomHTMLInputElement;
+      final element = domElement as DomHTMLInputElement;
       if (placeholder != null) {
         element.placeholder = placeholder;
       }
@@ -532,7 +532,7 @@ class AutofillInfo {
       }
       element.autocomplete = autofillHint ?? 'on';
     } else if (domElement.isA<DomHTMLTextAreaElement>()) {
-      final DomHTMLTextAreaElement element = domElement as DomHTMLTextAreaElement;
+      final element = domElement as DomHTMLTextAreaElement;
       if (placeholder != null) {
         element.placeholder = placeholder;
       }
@@ -551,7 +551,7 @@ String _replace(String originalText, String replacementText, ui.TextRange replac
   assert(replacedRange.isValid);
   assert(replacedRange.start <= originalText.length && replacedRange.end <= originalText.length);
 
-  final ui.TextRange normalizedRange = ui.TextRange(
+  final normalizedRange = ui.TextRange(
     start: math.min(replacedRange.start, replacedRange.end),
     end: math.max(replacedRange.start, replacedRange.end),
   );
@@ -604,7 +604,7 @@ class TextEditingDeltaState {
     TextEditingDeltaState lastTextEditingDeltaState,
   ) {
     final TextEditingDeltaState newTextEditingDeltaState = lastTextEditingDeltaState.copyWith();
-    final bool previousSelectionWasCollapsed =
+    final previousSelectionWasCollapsed =
         lastEditingState?.baseOffset == lastEditingState?.extentOffset;
     final bool isTextBeingRemoved =
         newTextEditingDeltaState.deltaText.isEmpty && newTextEditingDeltaState.deltaEnd != -1;
@@ -620,7 +620,7 @@ class TextEditingDeltaState {
       // and [deltaEnd] is set to [deltaStart] incremented by the length of the deletion.
       final int deletedLength =
           newTextEditingDeltaState.oldText.length - newEditingState.text.length;
-      final bool backwardDeletion = newEditingState.baseOffset != lastEditingState?.baseOffset;
+      final backwardDeletion = newEditingState.baseOffset != lastEditingState?.baseOffset;
       if (backwardDeletion) {
         newTextEditingDeltaState.deltaStart = newTextEditingDeltaState.deltaEnd - deletedLength;
       } else {
@@ -665,7 +665,7 @@ class TextEditingDeltaState {
       // This verification is needed for cases such as the insertion of a period
       // after a double space, and the insertion of an accented character through
       // a native composing menu.
-      final ui.TextRange replacementRange = ui.TextRange(
+      final replacementRange = ui.TextRange(
         start: newTextEditingDeltaState.deltaStart,
         end: newTextEditingDeltaState.deltaEnd,
       );
@@ -674,14 +674,14 @@ class TextEditingDeltaState {
         newTextEditingDeltaState.deltaText,
         replacementRange,
       );
-      final bool isDeltaVerified = textAfterDelta == newEditingState.text;
+      final isDeltaVerified = textAfterDelta == newEditingState.text;
 
       if (!isDeltaVerified) {
         // 1. Find all matches for deltaText.
         // 2. Apply matches/replacement to oldText until oldText matches the
         // new editing state's text value.
         final bool isPeriodInsertion = newTextEditingDeltaState.deltaText.contains('.');
-        final RegExp deltaTextPattern = RegExp(RegExp.escape(newTextEditingDeltaState.deltaText));
+        final deltaTextPattern = RegExp(RegExp.escape(newTextEditingDeltaState.deltaText));
         for (final Match match in deltaTextPattern.allMatches(newEditingState.text)) {
           String textAfterMatch;
           int actualEnd;
@@ -843,8 +843,8 @@ class EditingState {
   factory EditingState.fromDomElement(DomHTMLElement domElement) {
     if (domElement.isA<DomHTMLInputElement>()) {
       final element = domElement as DomHTMLInputElement;
-      final selectionEnd = element.selectionEnd?.toInt() ?? 0;
-      final selectionStart = element.selectionStart?.toInt() ?? 0;
+      final int selectionEnd = element.selectionEnd?.toInt() ?? 0;
+      final int selectionStart = element.selectionStart?.toInt() ?? 0;
       if (element.selectionDirection == 'backward') {
         return EditingState(
           text: element.value,
@@ -860,8 +860,8 @@ class EditingState {
       }
     } else if (domElement.isA<DomHTMLTextAreaElement>()) {
       final element = domElement as DomHTMLTextAreaElement;
-      final selectionEnd = element.selectionEnd?.toInt() ?? 0;
-      final selectionStart = element.selectionStart?.toInt() ?? 0;
+      final int selectionEnd = element.selectionEnd?.toInt() ?? 0;
+      final int selectionStart = element.selectionStart?.toInt() ?? 0;
       if (element.selectionDirection == 'backward') {
         return EditingState(
           text: element.value,
@@ -952,7 +952,7 @@ class EditingState {
 
   @override
   String toString() {
-    String result = super.toString();
+    var result = super.toString();
     assert(() {
       result =
           'EditingState("$text", base:$baseOffset, extent:$extentOffset, composingBase:$composingBaseOffset, composingExtent:$composingExtentOffset)';
@@ -975,11 +975,11 @@ class EditingState {
   ///  * [applyTextToDomElement], which is used for non-focused elements.
   void applyToDomElement(DomHTMLElement? domElement) {
     if (domElement != null && domElement.isA<DomHTMLInputElement>()) {
-      final DomHTMLInputElement element = domElement as DomHTMLInputElement;
+      final element = domElement as DomHTMLInputElement;
       element.value = text;
       element.setSelectionRange(minOffset, maxOffset);
     } else if (domElement != null && domElement.isA<DomHTMLTextAreaElement>()) {
-      final DomHTMLTextAreaElement element = domElement as DomHTMLTextAreaElement;
+      final element = domElement as DomHTMLTextAreaElement;
       element.value = text;
       element.setSelectionRange(minOffset, maxOffset);
     } else {
@@ -998,10 +998,10 @@ class EditingState {
   ///  * [applyToDomElement], which is used for focused elements.
   void applyTextToDomElement(DomHTMLElement? domElement) {
     if (domElement != null && domElement.isA<DomHTMLInputElement>()) {
-      final DomHTMLInputElement element = domElement as DomHTMLInputElement;
+      final element = domElement as DomHTMLInputElement;
       element.value = text;
     } else if (domElement != null && domElement.isA<DomHTMLTextAreaElement>()) {
-      final DomHTMLTextAreaElement element = domElement as DomHTMLTextAreaElement;
+      final element = domElement as DomHTMLTextAreaElement;
       element.value = text;
     } else {
       throw UnsupportedError('Unsupported DOM element type');
@@ -1178,7 +1178,11 @@ class GloballyPositionedTextEditingStrategy extends DefaultTextEditingStrategy {
       // only after placing it to the correct position. Hence autofill menu
       // does not appear on top-left of the page.
       // Refocus on the elements after applying the geometry.
-      focusedFormElement!.focusWithoutScroll();
+      // placeForm() involves DOM manipulation which can trigger synchronous
+      // events (like blur). These events might invalidate the current
+      // inputConfiguration or disable the strategy before placeForm() returns.
+      // Therefore, we must defensively check if the element is still valid/present.
+      focusedFormElement?.focusWithoutScroll();
       moveFocusToActiveDomElement();
     }
   }
@@ -1297,6 +1301,9 @@ abstract class DefaultTextEditingStrategy
   /// Size and transform of the editable text on the page.
   EditableTextGeometry? geometry;
 
+  /// The scroll top of the editable text on the page.
+  final Map<String, double> _preservedScrollTops = <String, double>{};
+
   OnChangeCallback? onChange;
   OnActionCallback? onAction;
 
@@ -1371,7 +1378,7 @@ abstract class DefaultTextEditingStrategy
       _ensureEditingElementInView(activeDomElement, inputConfiguration.viewId);
     }
 
-    final String autocorrectValue = config.autocorrect ? 'on' : 'off';
+    final autocorrectValue = config.autocorrect ? 'on' : 'off';
     activeDomElement.setAttribute('autocorrect', autocorrectValue);
   }
 
@@ -1452,6 +1459,11 @@ abstract class DefaultTextEditingStrategy
   @override
   void disable() {
     assert(isEnabled);
+    // Preserve the internal scroll position.
+    if (geometry != null && lastEditingState != null) {
+      final key = '${geometry!.hashCode}_${lastEditingState!.text.hashCode}';
+      _preservedScrollTops[key] = activeDomElement.scrollTop;
+    }
 
     isEnabled = false;
     lastEditingState = null;
@@ -1459,7 +1471,7 @@ abstract class DefaultTextEditingStrategy
     style = null;
     geometry = null;
 
-    for (int i = 0; i < subscriptions.length; i++) {
+    for (var i = 0; i < subscriptions.length; i++) {
       subscriptions[i].cancel();
     }
     subscriptions.clear();
@@ -1499,7 +1511,7 @@ abstract class DefaultTextEditingStrategy
   void handleChange(DomEvent event) {
     assert(isEnabled);
 
-    EditingState newEditingState = EditingState.fromDomElement(activeDomElement);
+    var newEditingState = EditingState.fromDomElement(activeDomElement);
     newEditingState = suppressInteractiveSelectionIfNeeded(newEditingState);
     newEditingState = determineCompositionState(newEditingState);
 
@@ -1533,7 +1545,7 @@ abstract class DefaultTextEditingStrategy
     }
 
     // If interactive selection is disabled, collapse the selection to the end.
-    final newEditingState = editingState.copyWith(
+    final EditingState newEditingState = editingState.copyWith(
       baseOffset: editingState.extentOffset,
       extentOffset: editingState.extentOffset,
     );
@@ -1583,7 +1595,7 @@ abstract class DefaultTextEditingStrategy
   void handleBlur(DomEvent event) {
     event as DomFocusEvent;
 
-    final DomElement? willGainFocusElement = event.relatedTarget as DomElement?;
+    final willGainFocusElement = event.relatedTarget as DomElement?;
     if (willGainFocusElement == null) {
       // If the element to gain focus is reported as `null`, it means that the
       // window/iframe that Flutter runs in is losing focus. In this case, the
@@ -1617,7 +1629,7 @@ abstract class DefaultTextEditingStrategy
 
   void maybeSendAction(DomEvent e) {
     if (e.isA<DomKeyboardEvent>()) {
-      final DomKeyboardEvent event = e as DomKeyboardEvent;
+      final event = e as DomKeyboardEvent;
       if (event.keyCode == _kReturnKeyCode) {
         onAction!(inputConfiguration.inputAction);
         if (inputConfiguration.inputType is MultilineInputType &&
@@ -1655,6 +1667,12 @@ abstract class DefaultTextEditingStrategy
 
     // Re-focuses after setting editing state.
     moveFocusToActiveDomElement();
+
+    // Restore the internal scroll position.
+    if (geometry != null && lastEditingState != null) {
+      final key = '${geometry!.hashCode}_${lastEditingState!.text.hashCode}';
+      activeDomElement.scrollTop = _preservedScrollTops.remove(key) ?? 0.0;
+    }
   }
 
   /// Prevent default behavior for mouse down, up and move.
@@ -2244,8 +2262,7 @@ class TextInputFinishAutofillContext extends TextInputCommand {
 /// See: https://github.com/flutter/flutter/blob/bf9f3a3dcfea3022f9cf2dfc3ab10b120b48b19d/packages/flutter/lib/src/services/text_input.dart#L1277
 void saveForms() {
   formsOnTheDom.forEach((String identifier, DomHTMLFormElement form) {
-    final DomHTMLInputElement submitBtn =
-        form.getElementsByClassName('submitBtn').first as DomHTMLInputElement;
+    final submitBtn = form.getElementsByClassName('submitBtn').first as DomHTMLInputElement;
     submitBtn.click();
   });
 }
@@ -2272,7 +2289,7 @@ class TextEditingChannel {
 
   /// Handles "flutter/textinput" platform messages received from the framework.
   void handleTextInput(ByteData? data, ui.PlatformMessageResponseCallback? callback) {
-    const JSONMethodCodec codec = JSONMethodCodec();
+    const codec = JSONMethodCodec();
     final MethodCall call = codec.decodeMethodCall(data);
     final TextInputCommand command;
     switch (call.method) {
@@ -2500,6 +2517,9 @@ class EditableTextStyle {
     required this.textAlign,
     required this.fontFamily,
     required this.fontWeight,
+    required this.letterSpacing,
+    required this.wordSpacing,
+    required this.lineHeight,
   });
 
   factory EditableTextStyle.fromFrameworkMessage(Map<String, dynamic> flutterStyle) {
@@ -2508,9 +2528,9 @@ class EditableTextStyle {
     assert(flutterStyle.containsKey('textAlignIndex'));
     assert(flutterStyle.containsKey('textDirectionIndex'));
 
-    final int textAlignIndex = flutterStyle['textAlignIndex'] as int;
-    final int textDirectionIndex = flutterStyle['textDirectionIndex'] as int;
-    final int? fontWeightIndex = flutterStyle['fontWeightIndex'] as int?;
+    final textAlignIndex = flutterStyle['textAlignIndex'] as int;
+    final textDirectionIndex = flutterStyle['textDirectionIndex'] as int;
+    final fontWeightIndex = flutterStyle['fontWeightIndex'] as int?;
 
     // Convert [fontWeightIndex] to its CSS equivalent value.
     final String fontWeight = fontWeightIndex != null
@@ -2526,6 +2546,9 @@ class EditableTextStyle {
       textAlign: ui.TextAlign.values[textAlignIndex],
       textDirection: ui.TextDirection.values[textDirectionIndex],
       fontWeight: fontWeight,
+      letterSpacing: flutterStyle.tryDouble('letterSpacing'),
+      wordSpacing: flutterStyle.tryDouble('wordSpacing'),
+      lineHeight: flutterStyle.tryDouble('lineHeight'),
     );
   }
 
@@ -2536,6 +2559,9 @@ class EditableTextStyle {
   final String? fontFamily;
   final ui.TextAlign textAlign;
   final ui.TextDirection textDirection;
+  final double? letterSpacing;
+  final double? wordSpacing;
+  final double? lineHeight;
 
   String? get align => textAlignToCssValue(textAlign, textDirection);
 
@@ -2544,7 +2570,10 @@ class EditableTextStyle {
   void applyToDomElement(DomHTMLElement domElement) {
     domElement.style
       ..textAlign = align!
-      ..font = cssFont;
+      ..font = cssFont
+      ..letterSpacing = letterSpacing != null ? '${letterSpacing}px' : ''
+      ..wordSpacing = wordSpacing != null ? '${wordSpacing}px' : ''
+      ..lineHeight = lineHeight != null ? '${lineHeight}px' : 'normal';
   }
 }
 
@@ -2566,7 +2595,7 @@ class EditableTextGeometry {
     assert(encodedGeometry.containsKey('height'));
     assert(encodedGeometry.containsKey('transform'));
 
-    final List<double> transformList = List<double>.from(
+    final transformList = List<double>.from(
       encodedGeometry.readList('transform').map((final dynamic e) => (e as num).toDouble()),
     );
     return EditableTextGeometry(
@@ -2604,4 +2633,18 @@ class EditableTextGeometry {
       ..height = '${height}px'
       ..transform = cssTransform;
   }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) {
+      return true;
+    }
+    return other is EditableTextGeometry &&
+        other.width == width &&
+        other.height == height &&
+        listEquals<double>(other.globalTransform, globalTransform);
+  }
+
+  @override
+  int get hashCode => Object.hash(width, height, Object.hashAll(globalTransform));
 }

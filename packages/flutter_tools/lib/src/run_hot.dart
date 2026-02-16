@@ -39,10 +39,10 @@ HotRunnerConfig? get hotRunnerConfig => context.get<HotRunnerConfig>();
 
 class HotRunnerConfig {
   /// Should the hot runner assume that the minimal Dart dependencies do not change?
-  var stableDartDependencies = false;
+  bool stableDartDependencies = false;
 
   /// Whether the hot runner should scan for modified files asynchronously.
-  var asyncScanning = false;
+  bool asyncScanning = false;
 
   /// A hook for implementations to perform any necessary initialization prior
   /// to a hot restart. Should return true if the hot restart should continue.
@@ -96,6 +96,7 @@ class HotRunner extends ResidentRunner {
     String? nativeAssetsYamlFile,
     required Analytics analytics,
     super.dartBuilder,
+    super.shutdownHooks,
   }) : _stopwatchFactory = stopwatchFactory,
        _reloadSourcesHelper = reloadSourcesHelper,
        _reassembleHelper = reassembleHelper,
@@ -130,6 +131,7 @@ class HotRunner extends ResidentRunner {
 
   @visibleForTesting
   String? get targetPlatformName => _targetPlatformName;
+
   String? _targetPlatformName;
   final _targetPlatforms = <TargetPlatform>{};
 
@@ -167,6 +169,7 @@ class HotRunner extends ResidentRunner {
         );
         _sdkName = 'multiple';
         _emulator = false;
+
       default:
         _targetPlatformName = 'unknown';
         _sdkName = 'unknown';
@@ -1265,6 +1268,7 @@ class HotRunner extends ResidentRunner {
     }
     await _cleanupDevFS();
     await stopEchoingDeviceLog();
+    await super.cleanupAtFinish();
   }
 }
 

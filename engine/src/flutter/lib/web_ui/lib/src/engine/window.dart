@@ -131,6 +131,16 @@ class EngineFlutterView implements ui.FlutterView {
     semantics.updateSemantics(update);
   }
 
+  /// Sets the locale for this view.
+  ///
+  /// This method is typically called by the Flutter framework after it has
+  /// resolved the application's locale. It configures the view to reflect
+  /// the given locale, which is important for accessibility and for the
+  /// browser.
+  void setLocale(ui.Locale locale) {
+    embeddingStrategy.setLocale(locale);
+  }
+
   late final GlobalHtmlAttributes _globalHtmlAttributes = GlobalHtmlAttributes(
     rootElement: dom.rootElement,
     hostElement: embeddingStrategy.hostElement,
@@ -266,6 +276,9 @@ class EngineFlutterView implements ui.FlutterView {
   List<ui.DisplayFeature> get displayFeatures => _viewConfiguration.displayFeatures;
 
   @override
+  ui.DisplayCornerRadii? get displayCornerRadii => _viewConfiguration.displayCornerRadii;
+
+  @override
   EngineFlutterDisplay get display => EngineFlutterDisplay.instance;
 
   @override
@@ -366,8 +379,8 @@ final class _EngineFlutterViewImpl extends EngineFlutterView {
   _EngineFlutterViewImpl(
     EnginePlatformDispatcher platformDispatcher,
     DomElement hostElement, {
-    JsViewConstraints? viewConstraints,
-  }) : super._(_nextViewId++, platformDispatcher, hostElement, viewConstraints: viewConstraints);
+    super.viewConstraints,
+  }) : super._(_nextViewId++, platformDispatcher, hostElement);
 }
 
 /// The Web implementation of [ui.SingletonFlutterWindow].
@@ -632,10 +645,10 @@ final class EngineFlutterWindow extends EngineFlutterView implements ui.Singleto
 
   Future<bool> _waitInTheLine(_HandleMessageCallBack callback) async {
     final Future<void> currentPosition = _endOfTheLine;
-    final Completer<void> completer = Completer<void>();
+    final completer = Completer<void>();
     _endOfTheLine = completer.future;
     await currentPosition;
-    bool result = false;
+    var result = false;
     try {
       result = await callback();
     } finally {
@@ -647,7 +660,7 @@ final class EngineFlutterWindow extends EngineFlutterView implements ui.Singleto
   Future<bool> handleNavigationMessage(ByteData? data) async {
     return _waitInTheLine(() async {
       final MethodCall decoded = const JSONMethodCodec().decodeMethodCall(data);
-      final Map<String, dynamic>? arguments = decoded.arguments as Map<String, dynamic>?;
+      final arguments = decoded.arguments as Map<String, dynamic>?;
       switch (decoded.method) {
         case 'selectMultiEntryHistory':
           await _useMultiEntryBrowserHistory();

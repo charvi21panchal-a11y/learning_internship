@@ -32,7 +32,7 @@ export 'package:flutter/rendering.dart' show AxisDirection;
 //     required super.delegate,
 //     required super.mainAxis,
 //     required super.childManager,
-//     super.cacheExtent,
+//     super.scrollCacheExtent,
 //     super.clipBehavior = Clip.hardEdge,
 //   });
 //   @override
@@ -94,7 +94,7 @@ typedef TwoDimensionalIndexedWidgetBuilder =
 ///     required super.horizontalAxisDirection,
 ///     required super.delegate,
 ///     required super.mainAxis,
-///     super.cacheExtent,
+///     super.scrollCacheExtent,
 ///     super.clipBehavior = Clip.hardEdge,
 ///   });
 ///
@@ -108,7 +108,7 @@ typedef TwoDimensionalIndexedWidgetBuilder =
 ///       mainAxis: mainAxis,
 ///       delegate: delegate,
 ///       childManager: context as TwoDimensionalChildManager,
-///       cacheExtent: cacheExtent,
+///       scrollCacheExtent: scrollCacheExtent,
 ///       clipBehavior: clipBehavior,
 ///     );
 ///   }
@@ -122,7 +122,7 @@ typedef TwoDimensionalIndexedWidgetBuilder =
 ///       ..verticalAxisDirection = verticalAxisDirection
 ///       ..mainAxis = mainAxis
 ///       ..delegate = delegate
-///       ..cacheExtent = cacheExtent
+///       ..scrollCacheExtent = scrollCacheExtent
 ///       ..clipBehavior = clipBehavior;
 ///   }
 /// }
@@ -147,7 +147,17 @@ abstract class TwoDimensionalViewport extends RenderObjectWidget {
     required this.horizontalAxisDirection,
     required this.delegate,
     required this.mainAxis,
+    @Deprecated(
+      'Use scrollCacheExtent instead. '
+      'This feature was deprecated after v3.41.0-0.0.pre.',
+    )
     this.cacheExtent,
+    @Deprecated(
+      'Use scrollCacheExtent instead. '
+      'This feature was deprecated after v3.41.0-0.0.pre.',
+    )
+    this.cacheExtentStyle,
+    this.scrollCacheExtent,
     this.clipBehavior = Clip.hardEdge,
   }) : assert(
          verticalAxisDirection == AxisDirection.down || verticalAxisDirection == AxisDirection.up,
@@ -212,7 +222,21 @@ abstract class TwoDimensionalViewport extends RenderObjectWidget {
   final Axis mainAxis;
 
   /// {@macro flutter.rendering.RenderViewportBase.cacheExtent}
+  @Deprecated(
+    'Use scrollCacheExtent instead. '
+    'This feature was deprecated after v3.41.0-0.0.pre.',
+  )
   final double? cacheExtent;
+
+  /// {@macro flutter.rendering.RenderViewportBase.cacheExtentStyle}
+  @Deprecated(
+    'Use scrollCacheExtent instead. '
+    'This feature was deprecated after v3.41.0-0.0.pre.',
+  )
+  final CacheExtentStyle? cacheExtentStyle;
+
+  /// {@macro flutter.rendering.RenderViewportBase.scrollCacheExtent}
+  final ScrollCacheExtent? scrollCacheExtent;
 
   /// {@macro flutter.material.Material.clipBehavior}
   final Clip clipBehavior;
@@ -294,8 +318,8 @@ class _TwoDimensionalViewportElement extends RenderObjectElement
   }
 
   static int _compareChildren(Element a, Element b) {
-    final ChildVicinity aSlot = a.slot! as ChildVicinity;
-    final ChildVicinity bSlot = b.slot! as ChildVicinity;
+    final aSlot = a.slot! as ChildVicinity;
+    final bSlot = b.slot! as ChildVicinity;
     return aSlot.compareTo(bSlot);
   }
 
@@ -518,7 +542,17 @@ abstract class RenderTwoDimensionalViewport extends RenderBox implements RenderA
     required TwoDimensionalChildDelegate delegate,
     required Axis mainAxis,
     required TwoDimensionalChildManager childManager,
+    @Deprecated(
+      'Use scrollCacheExtent instead. '
+      'This feature was deprecated after v3.41.0-0.0.pre.',
+    )
     double? cacheExtent,
+    @Deprecated(
+      'Use scrollCacheExtent instead. '
+      'This feature was deprecated after v3.41.0-0.0.pre.',
+    )
+    CacheExtentStyle? cacheExtentStyle,
+    ScrollCacheExtent? scrollCacheExtent,
     Clip clipBehavior = Clip.hardEdge,
   }) : assert(
          verticalAxisDirection == AxisDirection.down || verticalAxisDirection == AxisDirection.up,
@@ -536,7 +570,14 @@ abstract class RenderTwoDimensionalViewport extends RenderBox implements RenderA
        _verticalAxisDirection = verticalAxisDirection,
        _delegate = delegate,
        _mainAxis = mainAxis,
-       _cacheExtent = cacheExtent ?? RenderAbstractViewport.defaultCacheExtent,
+       _scrollCacheExtent =
+           scrollCacheExtent ??
+           (cacheExtent != null
+               ? switch (cacheExtentStyle) {
+                   CacheExtentStyle.pixel || null => ScrollCacheExtent.pixels(cacheExtent),
+                   CacheExtentStyle.viewport => ScrollCacheExtent.viewport(cacheExtent),
+                 }
+               : const ScrollCacheExtent.pixels(RenderAbstractViewport.defaultCacheExtent)),
        _clipBehavior = clipBehavior {
     assert(() {
       _debugDanglingKeepAlives = <RenderBox>[];
@@ -666,13 +707,71 @@ abstract class RenderTwoDimensionalViewport extends RenderBox implements RenderA
   }
 
   /// {@macro flutter.rendering.RenderViewportBase.cacheExtent}
-  double get cacheExtent => _cacheExtent ?? RenderAbstractViewport.defaultCacheExtent;
-  double? _cacheExtent;
+  @Deprecated(
+    'Use scrollCacheExtent instead. '
+    'This feature was deprecated after v3.41.0-0.0.pre.',
+  )
+  double get cacheExtent => _scrollCacheExtent.value;
+  @Deprecated(
+    'Use scrollCacheExtent instead. '
+    'This feature was deprecated after v3.41.0-0.0.pre.',
+  )
   set cacheExtent(double? value) {
-    if (_cacheExtent == value) {
+    if (value == cacheExtent) {
       return;
     }
-    _cacheExtent = value;
+    if (value == null) {
+      _scrollCacheExtent = const ScrollCacheExtent.pixels(
+        RenderAbstractViewport.defaultCacheExtent,
+      );
+    } else {
+      _scrollCacheExtent = switch (cacheExtentStyle) {
+        CacheExtentStyle.pixel => ScrollCacheExtent.pixels(value),
+        CacheExtentStyle.viewport => ScrollCacheExtent.viewport(value),
+      };
+    }
+    markNeedsLayout();
+  }
+
+  /// {@macro flutter.rendering.RenderViewportBase.cacheExtentStyle}
+  @Deprecated(
+    'Use scrollCacheExtent instead. '
+    'This feature was deprecated after v3.41.0-0.0.pre.',
+  )
+  CacheExtentStyle get cacheExtentStyle => _scrollCacheExtent.style;
+  @Deprecated(
+    'Use scrollCacheExtent instead. '
+    'This feature was deprecated after v3.41.0-0.0.pre.',
+  )
+  set cacheExtentStyle(CacheExtentStyle? value) {
+    if (value == cacheExtentStyle) {
+      return;
+    }
+    if (value == null) {
+      _scrollCacheExtent = ScrollCacheExtent.pixels(cacheExtent);
+    } else {
+      _scrollCacheExtent = switch (value) {
+        CacheExtentStyle.pixel => ScrollCacheExtent.pixels(cacheExtent),
+        CacheExtentStyle.viewport => ScrollCacheExtent.viewport(cacheExtent),
+      };
+    }
+    markNeedsLayout();
+  }
+
+  /// {@macro flutter.rendering.RenderViewportBase.scrollCacheExtent}
+  ScrollCacheExtent get scrollCacheExtent => _scrollCacheExtent;
+  ScrollCacheExtent _scrollCacheExtent;
+  set scrollCacheExtent(ScrollCacheExtent? value) {
+    if (_scrollCacheExtent == value) {
+      return;
+    }
+    if (value == null) {
+      _scrollCacheExtent = const ScrollCacheExtent.pixels(
+        RenderAbstractViewport.defaultCacheExtent,
+      );
+    } else {
+      _scrollCacheExtent = value;
+    }
     markNeedsLayout();
   }
 
@@ -871,7 +970,7 @@ abstract class RenderTwoDimensionalViewport extends RenderBox implements RenderA
 
   @override
   List<DiagnosticsNode> debugDescribeChildren() {
-    final List<DiagnosticsNode> debugChildren = <DiagnosticsNode>[
+    final debugChildren = <DiagnosticsNode>[
       ..._children.keys.map<DiagnosticsNode>((ChildVicinity vicinity) {
         return _children[vicinity]!.toDiagnosticsNode(name: vicinity.toString());
       }),
@@ -950,16 +1049,16 @@ abstract class RenderTwoDimensionalViewport extends RenderBox implements RenderA
     rect ??= target.paintBounds;
     // `child` will be the last RenderObject before the viewport when walking
     // up from `target`.
-    RenderObject child = target;
+    var child = target;
     while (child.parent != this) {
       child = child.parent!;
     }
 
     assert(child.parent == this);
-    final RenderBox box = child as RenderBox;
+    final box = child as RenderBox;
     final Rect rectLocal = MatrixUtils.transformRect(target.getTransformTo(child), rect);
 
-    double leadingScrollOffset = offset;
+    var leadingScrollOffset = offset;
 
     // The scroll offset of `rect` within `child`.
     leadingScrollOffset += switch (axisDirection) {
@@ -1003,7 +1102,7 @@ abstract class RenderTwoDimensionalViewport extends RenderBox implements RenderA
       AxisDirection.right => targetRect.translate(offsetDifference, 0.0),
     };
 
-    final RevealedOffset revealedOffset = RevealedOffset(offset: targetOffset, rect: targetRect);
+    final revealedOffset = RevealedOffset(offset: targetOffset, rect: targetRect);
     return revealedOffset;
   }
 
@@ -1270,7 +1369,7 @@ abstract class RenderTwoDimensionalViewport extends RenderBox implements RenderA
         .toSet()
         .difference(_activeChildrenForLayoutPass.values.toSet())
         .toList();
-    for (final RenderBox child in remainingChildren) {
+    for (final child in remainingChildren) {
       final TwoDimensionalViewportParentData childParentData = parentDataOf(child);
       if (childParentData.keepAlive) {
         _keepAliveBucket[childParentData.vicinity] = child;
@@ -1301,7 +1400,7 @@ abstract class RenderTwoDimensionalViewport extends RenderBox implements RenderA
         for (int minorIndex = _leadingYIndex!; minorIndex <= _trailingYIndex!; minorIndex++) {
           // Major
           for (int majorIndex = _leadingXIndex!; majorIndex <= _trailingXIndex!; majorIndex++) {
-            final ChildVicinity vicinity = ChildVicinity(xIndex: majorIndex, yIndex: minorIndex);
+            final vicinity = ChildVicinity(xIndex: majorIndex, yIndex: minorIndex);
             previousChild =
                 _completeChildParentData(vicinity, previousChild: previousChild) ?? previousChild;
           }
@@ -1312,7 +1411,7 @@ abstract class RenderTwoDimensionalViewport extends RenderBox implements RenderA
         for (int minorIndex = _leadingXIndex!; minorIndex <= _trailingXIndex!; minorIndex++) {
           // Major
           for (int majorIndex = _leadingYIndex!; majorIndex <= _trailingYIndex!; majorIndex++) {
-            final ChildVicinity vicinity = ChildVicinity(xIndex: minorIndex, yIndex: majorIndex);
+            final vicinity = ChildVicinity(xIndex: minorIndex, yIndex: majorIndex);
             previousChild =
                 _completeChildParentData(vicinity, previousChild: previousChild) ?? previousChild;
           }
@@ -1352,7 +1451,7 @@ abstract class RenderTwoDimensionalViewport extends RenderBox implements RenderA
   }
 
   bool _debugCheckContentDimensions() {
-    const String hint =
+    const hint =
         'Subclasses should call applyContentDimensions on the '
         'verticalOffset and horizontalOffset to set the min and max scroll offset. '
         'If the contents exceed one or both sides of the viewportDimension, '

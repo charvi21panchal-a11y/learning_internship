@@ -166,7 +166,7 @@ void testMain() {
   });
 
   test('invokeOnKeyData returns normally when onKeyData is null', () {
-    const ui.KeyData keyData = ui.KeyData(
+    const keyData = ui.KeyData(
       timeStamp: Duration(milliseconds: 1),
       type: ui.KeyEventType.repeat,
       physical: kPhysicalKeyA,
@@ -197,7 +197,7 @@ void testMain() {
       expect(myWindow.onKeyData, same(onKeyData));
     });
 
-    const ui.KeyData keyData = ui.KeyData(
+    const keyData = ui.KeyData(
       timeStamp: Duration(milliseconds: 1),
       type: ui.KeyEventType.repeat,
       physical: kPhysicalKeyA,
@@ -271,7 +271,7 @@ void testMain() {
     expect(eventLog, [ui.SemanticsAction.focus]);
     eventLog.clear();
 
-    bool tapCalled = false;
+    var tapCalled = false;
     EnginePlatformDispatcher.instance.onBeginFrame = (_) {
       // Inside onBeginFrame: should be delayed
       EnginePlatformDispatcher.instance.invokeOnSemanticsAction(
@@ -283,7 +283,7 @@ void testMain() {
       tapCalled = true;
     };
 
-    bool increaseCalled = false;
+    var increaseCalled = false;
     EnginePlatformDispatcher.instance.onDrawFrame = () {
       // Inside onDrawFrame: should be delayed
       EnginePlatformDispatcher.instance.invokeOnSemanticsAction(
@@ -336,7 +336,7 @@ void testMain() {
   });
 
   test('onAccessibilityFeaturesChanged is called when semantics is enabled', () {
-    bool a11yChangeInvoked = false;
+    var a11yChangeInvoked = false;
     myWindow.onAccessibilityFeaturesChanged = () {
       a11yChangeInvoked = true;
     };
@@ -368,11 +368,11 @@ void testMain() {
   });
 
   test('sendPlatformMessage preserves the zone', () async {
-    final Completer<void> completer = Completer<void>();
+    final completer = Completer<void>();
     final Zone innerZone = Zone.current.fork();
 
     innerZone.runGuarded(() {
-      final ByteData inputData = ByteData(4);
+      final inputData = ByteData(4);
       inputData.setUint32(0, 42);
       myWindow.sendPlatformMessage('flutter/debug-echo', inputData, (ByteData? outputData) {
         expect(Zone.current, innerZone);
@@ -384,9 +384,9 @@ void testMain() {
   });
 
   test('sendPlatformMessage responds even when channel is unknown', () async {
-    bool responded = false;
+    var responded = false;
 
-    final ByteData inputData = ByteData(4);
+    final inputData = ByteData(4);
     inputData.setUint32(0, 42);
     myWindow.sendPlatformMessage('flutter/__unknown__channel__', null, (ByteData? outputData) {
       responded = true;
@@ -416,7 +416,7 @@ void testMain() {
 
   // Emulates the framework sending a request for screen orientation lock.
   Future<bool> sendSetPreferredOrientations(List<dynamic> orientations) {
-    final Completer<bool> completer = Completer<bool>();
+    final completer = Completer<bool>();
     final ByteData? inputData = const JSONMethodCodec().encodeMethodCall(
       MethodCall('SystemChrome.setPreferredOrientations', orientations),
     );
@@ -433,9 +433,9 @@ void testMain() {
   test('sets preferred screen orientation', () async {
     final DomScreen? original = domWindow.screen;
 
-    final List<String> lockCalls = <String>[];
-    int unlockCount = 0;
-    bool simulateError = false;
+    final lockCalls = <String>[];
+    var unlockCount = 0;
+    var simulateError = false;
 
     // The `orientation` property cannot be overridden, so this test overrides the entire `screen`.
     domWindow['screen'] = <String, Object?>{
@@ -523,7 +523,7 @@ void testMain() {
 
   test('SingletonFlutterWindow implements locale, locales, and locale change notifications', () {
     // This will count how many times we notified about locale changes.
-    int localeChangedCount = 0;
+    var localeChangedCount = 0;
     myWindow.onLocaleChanged = () {
       localeChangedCount += 1;
     };
@@ -547,7 +547,7 @@ void testMain() {
   });
 
   test('dispatches browser event on flutter/service_worker channel', () async {
-    final Completer<void> completer = Completer<void>();
+    final completer = Completer<void>();
     domWindow.addEventListener(
       'flutter-first-frame',
       createDomEventListener((DomEvent e) => completer.complete()),
@@ -567,7 +567,7 @@ void testMain() {
 
   test('sets global html attributes', () {
     final DomElement host = createDomHTMLDivElement();
-    final EngineFlutterView view = EngineFlutterView(dispatcher, host);
+    final view = EngineFlutterView(dispatcher, host);
 
     expect(host.getAttribute('flt-renderer'), 'canvaskit');
     expect(host.getAttribute('flt-build-mode'), 'debug');
@@ -586,8 +586,7 @@ void testMain() {
     // The existing viewport meta tag should've been removed.
     expect(existingMeta.isConnected, isFalse);
     // And a new one should've been added.
-    final DomHTMLMetaElement? newMeta =
-        domDocument.head!.querySelector('meta[name="viewport"]') as DomHTMLMetaElement?;
+    final newMeta = domDocument.head!.querySelector('meta[name="viewport"]') as DomHTMLMetaElement?;
     expect(newMeta, isNotNull);
     newMeta!;
     expect(newMeta.getAttribute('flt-viewport'), isNotNull);
@@ -607,9 +606,9 @@ void testMain() {
     expect(implicit1.viewId, kImplicitViewId);
     expect(implicit2.viewId, kImplicitViewId);
 
-    final EngineFlutterView view1 = EngineFlutterView(dispatcher, host);
-    final EngineFlutterView view2 = EngineFlutterView(dispatcher, host);
-    final EngineFlutterView view3 = EngineFlutterView(dispatcher, host);
+    final view1 = EngineFlutterView(dispatcher, host);
+    final view2 = EngineFlutterView(dispatcher, host);
+    final view3 = EngineFlutterView(dispatcher, host);
 
     expect(view1.viewId, isNot(kImplicitViewId));
     expect(view2.viewId, isNot(kImplicitViewId));
@@ -628,11 +627,11 @@ void testMain() {
 
   test('registration', () {
     final DomHTMLDivElement host = createDomHTMLDivElement();
-    final EnginePlatformDispatcher dispatcher = EnginePlatformDispatcher();
+    final dispatcher = EnginePlatformDispatcher();
     expect(dispatcher.viewManager.views, isEmpty);
 
     // Creating the view shouldn't register it.
-    final EngineFlutterView view = EngineFlutterView(dispatcher, host);
+    final view = EngineFlutterView(dispatcher, host);
     expect(dispatcher.viewManager.views, isEmpty);
     dispatcher.viewManager.registerView(view);
     expect(dispatcher.viewManager.views, <EngineFlutterView>[view]);
@@ -646,7 +645,7 @@ void testMain() {
 
   test('dispose', () {
     final DomHTMLDivElement host = createDomHTMLDivElement();
-    final EngineFlutterView view = EngineFlutterView(EnginePlatformDispatcher.instance, host);
+    final view = EngineFlutterView(EnginePlatformDispatcher.instance, host);
 
     // First, let's make sure the view's root element was inserted into the
     // host, and the dimensions provider is active.
@@ -757,7 +756,7 @@ void testMain() {
   });
 
   group('physicalConstraints', () {
-    const double dpr = 2.5;
+    const dpr = 2.5;
     late DomHTMLDivElement host;
     late EngineFlutterView view;
 

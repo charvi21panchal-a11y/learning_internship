@@ -49,7 +49,7 @@ import androidx.lifecycle.LifecycleRegistry;
 import io.flutter.Log;
 import io.flutter.embedding.android.FlutterActivityLaunchConfigs.BackgroundMode;
 import io.flutter.embedding.engine.FlutterEngine;
-import io.flutter.embedding.engine.FlutterShellArgs;
+import io.flutter.embedding.engine.FlutterShellArgsIntentUtils;
 import io.flutter.embedding.engine.plugins.activity.ActivityControlSurface;
 import io.flutter.embedding.engine.plugins.util.GeneratedPluginRegister;
 import io.flutter.plugin.platform.PlatformPlugin;
@@ -140,7 +140,7 @@ import java.util.List;
  *   <li>When you are unsure when/if you will need to display a Flutter experience.
  * </ul>
  *
- * <p>See https://flutter.dev/docs/development/add-to-app/performance for additional performance
+ * <p>See https://docs.flutter.dev/development/add-to-app/performance for additional performance
  * explorations on engine loading.
  *
  * <p>The following illustrates how to pre-warm and cache a {@link
@@ -629,7 +629,6 @@ public class FlutterActivity extends Activity
   }
 
   @Override
-  @RequiresApi(API_LEVELS.API_24)
   protected void onCreate(@Nullable Bundle savedInstanceState) {
     switchLaunchThemeForNormalTheme();
 
@@ -799,7 +798,6 @@ public class FlutterActivity extends Activity
   }
 
   @NonNull
-  @RequiresApi(API_LEVELS.API_24)
   private View createFlutterView() {
     return delegate.onCreateView(
         /* inflater=*/ null,
@@ -897,7 +895,6 @@ public class FlutterActivity extends Activity
   }
 
   @Override
-  @RequiresApi(API_LEVELS.API_24)
   public void detachFromFlutterEngine() {
     Log.w(
         TAG,
@@ -913,7 +910,6 @@ public class FlutterActivity extends Activity
   }
 
   @Override
-  @RequiresApi(API_LEVELS.API_24)
   protected void onDestroy() {
     super.onDestroy();
     if (stillAttachedForEvent("onDestroy")) {
@@ -1046,8 +1042,8 @@ public class FlutterActivity extends Activity
    */
   @NonNull
   @Override
-  public FlutterShellArgs getFlutterShellArgs() {
-    return FlutterShellArgs.fromIntent(getIntent());
+  public String[] getFlutterShellArgs() {
+    return FlutterShellArgsIntentUtils.getFlutterShellCommandLineArgs(getIntent());
   }
 
   /**
