@@ -16,7 +16,7 @@ class Dynamic extends StatelessWidget {
             onPressed: (){
       Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => Detailscreen(
+      MaterialPageRoute(builder: (context) => DetailScreen(
       title: "Mountain",
       description: "Beautiful mountain landscape with snow.",
       image:"https://picsum.photos/250?image=9",
