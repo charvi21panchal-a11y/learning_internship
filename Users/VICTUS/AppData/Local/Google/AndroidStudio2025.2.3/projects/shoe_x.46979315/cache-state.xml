@@ -2,5 +2,25 @@
   <component name="Project">
     <option name="lastProjectScan" value="1771226955" />
   </component>
-  <component name="RestoreUpdateTree"><![CDATA[{}]]></component>
+  <component name="RestoreUpdateTree">{}</component>
+  <component name="StoredSessionsInfoStore">
+    <option name="sessions">
+      <list>
+        <SessionInfoState>
+          <option name="id" value="20260217-122109-9f8d7b4d-213e-4231-b3ce-01149ad2397f" />
+          <option name="lastUpdateTimestamp" value="1771311069218" />
+          <option name="responseMode" value="Agent" />
+          <option name="title" value="New Agent Session" />
+          <option name="user" value="charvi21panchal@gmail.com" />
+        </SessionInfoState>
+        <SessionInfoState>
+          <option name="id" value="20260218-124015-ce239ed3-097e-4d4b-af16-04191dde0397" />
+          <option name="lastUpdateTimestamp" value="1771398615217" />
+          <option name="responseMode" value="Chat" />
+          <option name="title" value="New Chat Session" />
+          <option name="user" value="charvi21panchal@gmail.com" />
+        </SessionInfoState>
+      </list>
+    </option>
+  </component>
 </project>
