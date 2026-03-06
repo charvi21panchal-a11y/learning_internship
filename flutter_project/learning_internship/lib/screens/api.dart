@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:learning_internship/models/post_model.dart';
 
-class  extends StatefulWidget {
+class ApiScreen  extends StatefulWidget {
   const ApiScreen({super.key});
 
   @override
