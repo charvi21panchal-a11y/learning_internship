@@ -13,11 +13,6 @@ class SignupState extends State<Signup> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor:Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        centerTitle: true,
-      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
         child: Column(
@@ -26,6 +21,7 @@ class SignupState extends State<Signup> {
               const Text(
                 "Join With Our Market",
                 style: TextStyle(
+                  fontFamily: "Teko",
                   fontSize: 30,
                   fontWeight: FontWeight.bold,
                 ),
@@ -34,7 +30,11 @@ class SignupState extends State<Signup> {
 
               const Text(
                 "4,000,000 + shoes already to buy or sell",
-                style: TextStyle(color: Colors.grey),
+                style: TextStyle(
+                  fontFamily: "satoshi",
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                  color: Colors.grey),
               ),
               const SizedBox(height: 25),
 
