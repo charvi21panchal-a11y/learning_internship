@@ -34,35 +34,27 @@ class _PostFormScreenState extends State<PostFormScreen> {
         body: jsonEncode({
           "title": titleController.text,
           "body": bodyController.text,
-          "userId": 1
+          "userId": 2
         }),
       );
-
       if (response.statusCode == 201) {
-
         ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("Post submitted successfully"))
+            const SnackBar(content:Text("Post submitted successfully"))
         );
-
         titleController.clear();
         bodyController.clear();
-
-      } else {
-
-        ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("Failed to submit post"))
-        );
-
       }
-
+      else
+      {
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content:Text("Failed to submit post"))
+        );
+      }
     } catch (e) {
-
       ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Error: $e"))
+          SnackBar(content:Text("Error: $e"))
       );
-
     }
-
     setState(() {
       isLoading = false;
     });
