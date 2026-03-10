@@ -216,15 +216,6 @@ class SignupState extends State<Signup> {
               ),
 
       ),
-              ElevatedButton(
-                child:const Text('go to secure account'),
-                onPressed: (){
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const SecureaccountScreen ()),
-                  );
-                },
-              )
         ],
       ),
       ),

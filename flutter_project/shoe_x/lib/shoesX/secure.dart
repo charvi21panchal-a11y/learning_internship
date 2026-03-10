@@ -1,7 +1,8 @@
 import 'package:country_code_picker/country_code_picker.dart';
 import 'package:flutter/material.dart';
 
-class SecureaccountScreen extends StatefulWidget {
+
+import 'package:shoe_x/shoesX/verify_identity.dart';class SecureaccountScreen extends StatefulWidget {
   const SecureaccountScreen({super.key});
 
   @override
@@ -113,8 +114,12 @@ class _SecureaccountScreen extends State<SecureaccountScreen> {
             borderRadius: BorderRadius.zero,
           ),
           ),
-          onPressed: (
-              ) {},
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const VerifyIdentity()),
+            );
+          },
           child: const Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -147,9 +152,9 @@ class _SecureaccountScreen extends State<SecureaccountScreen> {
             const SizedBox(height:10),
           ],
             ),
-        ),
       ),
         ),
-      );
+      )
+    );
   }
 }
