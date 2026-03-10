@@ -17,7 +17,7 @@ class SignupState extends State<Signup> {
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
         child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+            children: [  const SizedBox(height: 40),
               const Text(
                 "Join With Our Market",
                 style: TextStyle(
@@ -31,8 +31,8 @@ class SignupState extends State<Signup> {
               const Text(
                 "4,000,000 + shoes already to buy or sell",
                 style: TextStyle(
-                  fontFamily: "satoshi",
-                    fontSize: 28,
+                  fontFamily: "Satoshi",
+                    fontSize: 16,
                     fontWeight: FontWeight.bold,
                   color: Colors.grey),
               ),
@@ -82,8 +82,14 @@ class SignupState extends State<Signup> {
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.black,
+                    minimumSize: const Size(double.infinity,55),
                   ),
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const SecureaccountScreen()),
+                    );
+                  },
                   child: const Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -220,9 +226,7 @@ class SignupState extends State<Signup> {
                 },
               )
         ],
-
       ),
-
       ),
       );
   }
