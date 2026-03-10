@@ -22,59 +22,58 @@ class SignupState extends State<Signup> {
                 "Join With Our Market",
                 style: TextStyle(
                   fontFamily: "Teko",
-                  fontSize: 30,
-                  fontWeight: FontWeight.bold,
+                  fontSize: 40,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
-              const SizedBox(height: 10),
-
+              const SizedBox(height: 5),
               const Text(
                 "4,000,000 + shoes already to buy or sell",
                 style: TextStyle(
                   fontFamily: "Satoshi",
                     fontSize: 16,
-                    fontWeight: FontWeight.bold,
+                    fontWeight: FontWeight.w600,
                   color: Colors.grey),
               ),
               const SizedBox(height: 25),
 
               TextField(
                 decoration: InputDecoration(
-                  hintText: "First Name",
+                  hintText: "First Name*",
                   border: OutlineInputBorder(),
                 ),
               ),
 
-              const SizedBox(height: 15),
+              const SizedBox(height: 10),
 
               TextField(
                 decoration: InputDecoration(
-                  hintText: "Last Name",
+                  hintText: "Last Name*",
                   border: OutlineInputBorder(),
                 ),
               ),
 
-              const SizedBox(height: 15),
+              const SizedBox(height: 10),
 
               TextField(
                 decoration: InputDecoration(
-                  hintText: "Email Address",
+                  hintText: "Email Address*",
                   border: OutlineInputBorder(),
                 ),
               ),
 
-              const SizedBox(height: 15),
+              const SizedBox(height: 10),
 
               TextField(
                 obscureText: true,
                 maxLength:6,
                 decoration: InputDecoration(
-                  hintText: "Password",
+                  hintText: "Password*",
                   border: OutlineInputBorder(),
                 ),
               ),
 
-              const SizedBox(height: 25),
+              const SizedBox(height: 15),
 
               SizedBox(
                 width: double.infinity,
@@ -82,6 +81,9 @@ class SignupState extends State<Signup> {
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.black,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.zero,
+                    ),
                     minimumSize: const Size(double.infinity,55),
                   ),
                   onPressed: () {
