@@ -97,9 +97,9 @@ class SignupState extends State<Signup> {
                     children: [
                       Text(
                         "Sign Up",
-                        style: TextStyle(fontSize: 16),
+                        style: TextStyle(fontSize: 16,color: Colors.white),
                       ),
-                      Icon(Icons.arrow_forward),
+                      Icon(Icons.arrow_forward,color: Colors.white,),
                     ],
                   )
                 )
@@ -167,12 +167,12 @@ class SignupState extends State<Signup> {
                       Image.asset("assets/icons/facebook.png",
                         height: 22,
                       ),
-                            ]
+                                  ]
+                               ),
                           ),
                       ),
-                ),
-              const SizedBox(height:10),
-                      SizedBox(
+                        const SizedBox(height:10),
+                        SizedBox(
                                 width: double.infinity,
                                 height: 50,
                                 child: OutlinedButton(
@@ -216,11 +216,10 @@ class SignupState extends State<Signup> {
               ),
               ]
               ),
-
+              ),
+            ],
+        ),
       ),
-        ],
-      ),
-      ),
-      );
+    );
   }
 }

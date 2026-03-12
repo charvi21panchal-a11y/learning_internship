@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:shoe_x/shoesX/login.dart';
 
 class VerifyIdentity extends StatefulWidget {
   const VerifyIdentity({super.key});
-
   @override
   State<VerifyIdentity> createState() => VerifyIdentityState();
 }
@@ -80,7 +80,12 @@ class VerifyIdentityState extends State<VerifyIdentity> {
                       borderRadius: BorderRadiusGeometry.all(Radius.circular(4)),
                     ),
                   ),
-                  onPressed: () {},
+                  onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const LoginScreen()),
+                      );
+                    },
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: const [
@@ -110,7 +115,7 @@ class VerifyIdentityState extends State<VerifyIdentity> {
                 style: TextStyle(
                   fontFamily: "Satoshi",
                   fontSize: 15,
-                  color: Colors.blue,
+                  color: Colors.blueAccent,
                   fontWeight: FontWeight.bold,
 
                 ),
